@@ -3,7 +3,7 @@ def call(Map config, Closure body) {
 
     echo "Setting up environment with ${nodeToolName}"
 
-    node(nodeToolName) {
+    nodejs(nodeToolName) {
         body()
     }
 
