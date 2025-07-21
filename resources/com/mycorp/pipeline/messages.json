@@ -1,0 +1,4 @@
+{
+    "success": "Build Successful! All check passed.",
+    "failure": "Build failed. Please review the build logs for details."
+}

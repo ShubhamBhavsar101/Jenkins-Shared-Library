@@ -9,11 +9,16 @@ class Notifier implements Serializable {
         this.script = script
     }
 
+    
     def success(String message) {
-        script.echo "✅ SUCCESS: ${message}"
+        def messagesText = script.libraryResource 'com/mycorp/pipeline/messages.json'
+        def messages = script.readJSON text: messagesText
+        script.echo "✅ SUCCESS: ${messages.success}"
     }
 
     def failure(String message) {
-        script.echo "❌ FAILURE: ${message}"
+        def messagesText = script.libraryResource 'com/mycorp/pipeline/messages.json'
+        def messages = script.readJSON text: messagesText
+        script.echo "❌ FAILURE: ${messages.failure}"
     }
 }
