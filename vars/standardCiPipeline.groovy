@@ -1,51 +1,30 @@
-def call(Map config = [:], Closure body) {
-	def defaults = [
-		nodeVersion: '16',
-		slackChannel: '#ci-alerts'
-	]
-	
-	def effectiveConfig = defaults + config
+import com.mycorp.pipeline.Notifier
+
+def call(Closure body) {
+	def notifier = new Notifier(this)
 
 	pipeline {
 		agent any
-		
-		tools {
-			nodejs "node-${effectiveConfig.nodeVersion}"
-		}	
-
 		stages {
-			stage('Project Specific Stages') {
+			stage('CI Steps') {
 				steps {
 					script {
 						body()
 					}
 				}
 			}
-			stage('Notify Success') {
-				when { success }
-				steps {
-					script {
-						def notifier = new com.mycorp.pipeline.Notifier(this)
-
-						def successMessage = libraryResource 'com/mycorp/pipeline/messages.json'
-
-						notifier.send('SUCCESS', effectiveConfig.slackChannel, readJSON(text: successMessage).success)
-					}
+		}
+		post {
+			success {
+				script {
+					notifier.success("The pipeline finished successfully")
 				}
 			}
-			stage('Notify Failure') {
-				when { failure } 
-				steps {
-					script {
-						def notifier = new com.mycorp.pipeline.Notifier(this)
-						
-						def failureMessage = libraryResource 'com/mycorp/pipeline/messages.json'
-
-						notifier.send('FAILURE', effectiveConfig.slackChannel, readJSON(text: failureMessage).failure)
-					}
+			failure {
+				script {
+					notifier.failure("The pipeline failed. Check the logs.")
 				}
 			}
-
 		}
 	}
 }
